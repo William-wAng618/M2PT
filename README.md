@@ -24,8 +24,8 @@ cd MMPT
 2.  Install Package
 
 ```Shell
-conda create -n mpt python=3.10 -y
-conda activate mpt
+conda create -n mmpt python=3.10 -y
+conda activate mmpt
 pip install --upgrade pip  # enable PEP 660 support
 pip install -e .
 ```
