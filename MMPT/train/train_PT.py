@@ -24,17 +24,17 @@ from typing import Dict, Optional, Sequence, List
 import torch
 import transformers
 
-from MPT.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, \
+from MMPT.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, \
     DEFAULT_IM_END_TOKEN
 from torch.utils.data import Dataset
-from MPT.train.llava_trainer import LLaVATrainer
+from MMPT.train.llava_trainer import LLaVATrainer
 
-from MPT import conversation as conversation_lib
+from MMPT import conversation as conversation_lib
 # from llava.model import *
 # introduce LLAMA-Prompt tuning model
-from MPT.model.language_model.llava_llama_PT import *
-from MPT.model.language_model.llava_mpt import *
-from MPT.mm_utils import tokenizer_image_token
+from MMPT.model.language_model.llava_llama_PT import *
+from MMPT.model.language_model.llava_mpt import *
+from MMPT.mm_utils import tokenizer_image_token
 
 from PIL import Image
 

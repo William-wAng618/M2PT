@@ -14,7 +14,7 @@
 
 
 from typing import List, Optional, Tuple, Union
-from MPT.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, \
+from MMPT.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, \
     DEFAULT_IM_END_TOKEN
 import torch
 import torch.nn as nn
@@ -27,7 +27,7 @@ from transformers import AutoConfig, AutoModelForCausalLM
 # 打开以下行PromptTuning，注释finetune
 from .modeling_llamaPT import LlamaModel, LlamaForCausalLM, LlamaConfig
 from transformers.modeling_outputs import CausalLMOutputWithPast
-from MPT.model.llava_archPT import LlavaMetaModel, LlavaMetaForCausalLM
+from MMPT.model.llava_archPT import LlavaMetaModel, LlavaMetaForCausalLM
 
 
 class LlavaConfig(LlamaConfig):

@@ -4,7 +4,7 @@ import torch.nn as nn
 # from transformers import CLIPVisionModel, CLIPImageProcessor, CLIPVisionConfig
 from transformers import CLIPImageProcessor, CLIPVisionConfig
 # from modeling_clipPT import CLIPVisionModel
-from MPT.model.multimodal_encoder.modeling_clipPT import CLIPVisionModel
+from MMPT.model.multimodal_encoder.modeling_clipPT import CLIPVisionModel
 
 class CLIPVisionTower(nn.Module):
     def __init__(self, vision_tower, args, VIT_PT_len, delay_load=False):

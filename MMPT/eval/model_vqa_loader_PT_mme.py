@@ -5,11 +5,11 @@ import json
 from tqdm import tqdm
 import shortuuid
 
-from MPT.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-from MPT.conversation import conv_templates, SeparatorStyle
-from MPT.model.builder_PTTrained import load_pretrained_model
-from MPT.utils import disable_torch_init
-from MPT.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path
+from MMPT.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
+from MMPT.conversation import conv_templates, SeparatorStyle
+from MMPT.model.builder_PTTrained import load_pretrained_model
+from MMPT.utils import disable_torch_init
+from MMPT.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path
 from torch.utils.data import Dataset, DataLoader
 
 from PIL import Image
