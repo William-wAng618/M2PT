@@ -17,7 +17,7 @@ This repository contains the official PyTorch implementation for ***MMPT: Multim
 1.  Clone this repository and navigate to LLaVA folder
 
 ```bash
-git clone https://github.com/JamesLiang819/MPT.git
+git clone git@github.com:William-wAng618/MMPT-emnlp2024.git
 cd MMPT
 ```
 
