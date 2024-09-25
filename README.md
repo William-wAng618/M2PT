@@ -18,7 +18,7 @@ This repository contains the official PyTorch implementation for ***MMPT: Multim
 
 ```bash
 git clone https://github.com/JamesLiang819/MPT.git
-cd MMPT
+cd M2PT
 ```
 
 2.  Install Package
