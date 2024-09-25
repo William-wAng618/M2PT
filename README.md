@@ -17,15 +17,15 @@ This repository contains the official PyTorch implementation for ***MMPT: Multim
 1.  Clone this repository and navigate to LLaVA folder
 
 ```bash
-git clone https://github.com/JamesLiang819/MPT.git
-cd M2PT
+git clone git@github.com:William-wAng618/MMPT-emnlp2024.git
+cd MMPT
 ```
 
 2.  Install Package
 
 ```Shell
-conda create -n mpt python=3.10 -y
-conda activate mpt
+conda create -n mmpt python=3.10 -y
+conda activate mmpt
 pip install --upgrade pip  # enable PEP 660 support
 pip install -e .
 ```
