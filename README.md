@@ -1,4 +1,4 @@
-Official Repo of ***M^2^$PT: Multimodal Prompt Tuning for Zero-shot Instruction Learning***
+Official Repo of ***M^2^PT: Multimodal Prompt Tuning for Zero-shot Instruction Learning***
 
 (👉Under construction! The key code is uploaded. However, there are several redundancies in the current version, and the commands/instructions are not perfectly ready for formal release. I will gradually update it! Please stay tuned.)
 
