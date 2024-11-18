@@ -65,5 +65,5 @@ bash scripts/PT_full_schedule.sh
 3.  Evaluation.
 For evaluation, please use:
 ```
-./M2PT-emnlp2024/eval/model_vqa_loader_PT_mme.py
+./M2PT/eval/model_vqa_loader_PT_mme.py
 ```
