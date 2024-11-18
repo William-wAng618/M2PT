@@ -17,15 +17,15 @@ This repository contains the official PyTorch implementation for ***M2PT: Multim
 1.  Clone this repository and navigate to LLaVA folder
 
 ```bash
-git clone git@github.com:William-wAng618/M2PT-emnlp2024.git
-cd M2PT-emnlp2024
+git@github.com:William-wAng618/M2PT.git
+cd M2PT
 ```
 
 2.  Install Package
 
 ```Shell
-conda create -n m2pt python=3.10 -y
-conda activate m2pt
+conda create -n M2PT python=3.10 -y
+conda activate M2PT
 pip install --upgrade pip  # enable PEP 660 support
 pip install -e .
 ```
@@ -47,7 +47,7 @@ The weigth for stage-1 Align is [liuhaotian/llava-pretrain-vicuna-7b-v1.3](https
 
 Please download the annotation of the [Vision-Flan](https://huggingface.co/datasets/Vision-Flan/vision-flan_191-task_1k) 191k data and place it in playground.
 
-    ├── M2PT-emnlp2024
+    ├── M2PT
     │   └── playground
     |       └──Vision-Flan (unzip here)
 
