@@ -20,11 +20,8 @@ import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
-# from transformers import AutoConfig, AutoModelForCausalLM, \
-#                          LlamaConfig, LlamaModel, LlamaForCausalLM
 from transformers import AutoConfig, AutoModelForCausalLM
 
-# 打开以下行PromptTuning，注释finetune
 from .modeling_llamaPT import LlamaModel, LlamaForCausalLM, LlamaConfig
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from M2PT.model.llava_archPT import LlavaMetaModel, LlavaMetaForCausalLM
@@ -52,13 +49,7 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         self.VIT_PT_len = VIT_PT_len
         self.model = LlavaLlamaModel(config, self.PT_len, self.VIT_PT_len)
 
-        # print(f"!!!!!!!!!!!!!!{config.hidden_size},{config.vocab_size}")
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-        # print(f"11111111{self.lm_head.weight}")
-        # print(f"11111111{sum(self.lm_head.weight)}")
-        # print(f"11111111{type(self.lm_head.weight)}")
-
-        # Initialize weights and apply final processing
         self.post_init()
         self.debug_lmhead = 0
         self.index = 0
@@ -66,13 +57,10 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
     def get_prompt_embeddings(self):
         return self.model.prompts
 
-    # require grads 20240513
     def make_prompt_learnable(self):
-        # go through all prompts and make them learnable
         self.model.prompts.requires_grad_(True)
 
     def make_prompt_unlearnable(self):
-        # go through all prompts and make them learnable
         self.model.prompts.requires_grad_(False)
 
     def get_model(self):
@@ -94,12 +82,7 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         images: Optional[torch.FloatTensor] = None,
         return_dict: Optional[bool] = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
-        # torch.cuda.empty_cache()
-        # print(f"$$$lmhead require grad here:{self.lm_head.weight.requires_grad}")
-        # print(f"$$$lmhead grad here:{self.lm_head.weight.grad}")
-        # print(f"$$$￥lmhead grad here:{self.lm_head.weight}")
         if self.index > 2:
-            # print(f"^^lm_head_sanity_check:SUM {torch.sum(self.debug_lmhead - self.lm_head.weight)},require_grad:{self.lm_head.weight.requires_grad},grad:{self.lm_head.weight.grad},weight:{self.lm_head.weight}")
             print(f"^^lm_head_sanity_check:SUM {torch.sum(self.debug_lmhead - self.lm_head.weight)},require_grad:{self.lm_head.weight.requires_grad}")
         self.debug_lmhead = self.lm_head.weight.clone().detach()
         self.index += 1
@@ -108,19 +91,11 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-        # print("label info")
-        # print(input_ids.shape)
-        # print(input_ids)
 
         image_token_indices = torch.where(input_ids == IMAGE_TOKEN_INDEX)[0]
-        # print(f"image_token_indices {image_token_indices}")
-        # print(IMAGE_TOKEN_INDEX)
-        # print(f"input_ids {input_ids}")
-        # print(f"a:{input_ids[:,:35].shape} b:{input_ids[:,35:].shape},input_ids:{input_ids.shape}")
         input_ids, attention_mask, past_key_values, inputs_embeds, labels = self.prepare_inputs_labels_for_multimodal(
             input_ids, attention_mask, past_key_values, labels, images)
 
-        # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
         outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
@@ -137,31 +112,13 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
 
         loss = None
         if labels is not None:
-            # Shift so that tokens < n predict
-            # torch.set_printoptions(threshold=float('inf'))
-            # print(f"labels: {labels}")
-            # print(f"label length: {labels.shape}")
-            # print(f"input_ids: {input_ids.shape}")
-            # exit()
-            # print(f"logits:{logits}")
-            # print(f"labels:{labels}")
-            # print(f"logits:{logits.shape},label:{labels.shape}")
-            # logits = torch.cat([logits[:,0:1,:],logits[:,self.PT_len+1:,:]],dim=1)
-            # logits = torch.cat([logits[:,:35,:],logits[:,35+self.VIT_PT_len:,:]],dim=1)
-            # labels = torch.cat([labels[:,:35],labels[:,35+self.VIT_PT_len:]],dim=-1)
             temp_labels = torch.full((labels.shape[0], self.PT_len), -100).to(labels.device)
             labels = torch.cat((temp_labels, labels), dim=1)
-            # print(f"labels:{labels.shape},cuda:{logits.device}")
-            # print(f"logits:{logits.shape},cuda:{logits.device}")
-            # print(f"2labels:{labels.shape},cuda:{logits.device}")
-            # print(f"2logits:{logits.shape},cuda:{logits.device}")
             shift_logits = logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
-            # Flatten the tokens
             loss_fct = CrossEntropyLoss()
             shift_logits = shift_logits.view(-1, self.config.vocab_size)
             shift_labels = shift_labels.view(-1)
-            # Enable model/pipeline parallelism
             shift_labels = shift_labels.to(shift_logits.device)
             loss = loss_fct(shift_logits, shift_labels)
 
@@ -183,7 +140,6 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         if past_key_values:
             input_ids = input_ids[:, -1:]
 
-        # if `inputs_embeds` are passed, we only want to use them in the 1st generation step
         if inputs_embeds is not None and past_key_values is None:
             model_inputs = {"inputs_embeds": inputs_embeds}
         else:
