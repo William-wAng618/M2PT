@@ -98,7 +98,6 @@ class LlamaRotaryEmbedding(torch.nn.Module):
         inv_freq = 1.0 / (self.base ** (torch.arange(0, self.dim, 2).float().to(device) / self.dim))
         self.register_buffer("inv_freq", inv_freq)
 
-        # Build here to make `torch.jit.trace` work.
         self._set_cos_sin_cache(
             seq_len=max_position_embeddings, device=self.inv_freq.device, dtype=torch.get_default_dtype()
         )
@@ -108,7 +107,6 @@ class LlamaRotaryEmbedding(torch.nn.Module):
         t = torch.arange(self.max_seq_len_cached, device=device, dtype=self.inv_freq.dtype)
 
         freqs = torch.einsum("i,j->ij", t, self.inv_freq)
-        # Different from paper, but it uses a different permutation in order to obtain the same calculation
         emb = torch.cat((freqs, freqs), dim=-1)
         self.register_buffer("cos_cached", emb.cos()[None, None, :, :].to(dtype), persistent=False)
         self.register_buffer("sin_cached", emb.sin()[None, None, :, :].to(dtype), persistent=False)
@@ -567,15 +565,11 @@ class LlamaModel(LlamaPreTrainedModel):
         import torch.nn.init as init
         if self.prompts_token_len > 0:
             for i in range(length):
-                # +1 for input emb
-                # a = torch.tensor((1,self.prompts_token_len,4096))
                 self.prompts.append(init.xavier_uniform_(nn.Parameter(torch.randn(1,self.prompts_token_len,4096))))
         self.prompts = nn.ParameterList(self.prompts)
-        # self.prompt0 = nn.Parameter(torch.randn(1,self.prompts_token_len,4096)).requires_grad_(True)
         self.gradient_checkpointing = False
         self.debug_weights = 0
         self.index = 0
-        # Initialize weights and apply final processing
         self.post_init()
 
     def get_input_embeddings(self):
@@ -584,10 +578,7 @@ class LlamaModel(LlamaPreTrainedModel):
     def set_input_embeddings(self, value):
         self.embed_tokens = value
 
-    # Copied from transformers.models.bart.modeling_bart.BartDecoder._prepare_decoder_attention_mask
-    def _prepare_decoder_attention_mask(self, attention_mask, input_shape, inputs_embeds, past_key_values_length):
-        # create causal mask
-        # [bsz, seq_len] -> [bsz, 1, tgt_seq_len, src_seq_len]
+    def _prepare_decoder_attention_mask(self, attention_mask, input_shape, inputs_embeds, past_key_values_length)
         combined_attention_mask = None
         if input_shape[-1] > 1:
             combined_attention_mask = _make_causal_mask(
@@ -598,7 +589,6 @@ class LlamaModel(LlamaPreTrainedModel):
             )
 
         if attention_mask is not None:
-            # [bsz, seq_len] -> [bsz, 1, tgt_seq_len, src_seq_len]
             expanded_attn_mask = _expand_mask(attention_mask, inputs_embeds.dtype, tgt_len=input_shape[-1]).to(
                 inputs_embeds.device
             )
@@ -646,17 +636,13 @@ class LlamaModel(LlamaPreTrainedModel):
                     print(self.prompts[-5].grad)
                 self.debug_weights = self.prompts[-5].data.clone().detach()
                 self.index += 1
-                # print(self.prompts[0].grad)
-                # add prompt length
                 seq_length = seq_length + self.prompts_token_len
                 seq_length_with_past = seq_length
                 past_key_values_length = 0
-                # add prompt tuning attention mask
                 attention_mask = torch.cat([attention_mask[:,:1],torch.ones((attention_mask.shape[0],self.prompts_token_len),device=attention_mask.device),attention_mask[:,1:]],dim=-1).contiguous()
             else:
                 seq_length_with_past = seq_length
                 past_key_values_length = 0
-                # attention_mask = torch.cat([attention_mask[:,:1],torch.ones((attention_mask.shape[0],self.prompts_token_len),device=attention_mask.device),attention_mask[:,1:]],dim=-1).contiguous()
         else:
             seq_length_with_past = seq_length
             past_key_values_length = 0
@@ -682,25 +668,11 @@ class LlamaModel(LlamaPreTrainedModel):
                 (batch_size, seq_length_with_past), dtype=torch.bool, device=inputs_embeds.device
             )
         if self.prompts_token_len > 0:
-            # add prompt in input space
-            # a = inputs_embeds[:,:1,:]
-            # b = self.prompts[0].repeat(batch_size,1,1)
-            # c = inputs_embeds[:,1:,:]
             if past_key_values is None:
-                # inputs_embeds = torch.cat([inputs_embeds[:,:1,:], self.prompts[0].repeat(batch_size,1,1).to(inputs_embeds.device).to(inputs_embeds.dtype),inputs_embeds[:,1:,:]],dim=1)
-                # inputs_embeds = torch.cat([inputs_embeds[:,:1,:], self.prompt0.repeat(batch_size,1,1).to(inputs_embeds.device).to(inputs_embeds.dtype),inputs_embeds[:,1:,:]],dim=1)
                 inputs_embeds = torch.cat([self.prompts[0].repeat(batch_size,1,1).to(inputs_embeds.device).to(inputs_embeds.dtype),inputs_embeds],dim=1)
-            # print(f"inputs_embs here!!!!:{inputs_embeds}")
-            # print(f"batch_size: {batch_size}, seq_length: {seq_length}, inputs_embeds shape: {inputs_embeds.shape}, past_key_values_length: {past_key_values_length},attention_mask: {attention_mask.shape}")
-        # else:
-        #     print("NO added leanable LLM Prompts")
-        # print(attention_mask.shape)
         attention_mask = self._prepare_decoder_attention_mask(
             attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
         )
-        # print(f"attention mask:{attention_mask.shape}")
-        # print(f"ones mask:{torch.ones((batch_size,self.prompts_token_len),device=attention_mask.device).shape}")
-        # attention_mask = torch.cat([torch.ones((batch_size,self.prompts_token_len),device=attention_mask.device),attention_mask],dim=-1)
         hidden_states = inputs_embeds
 
         if self.gradient_checkpointing and self.training:
@@ -730,8 +702,6 @@ class LlamaModel(LlamaPreTrainedModel):
                         return module(*inputs, output_attentions, None)
 
                     return custom_forward
-                # print(f"hiddenstate:{hidden_states.shape},attention_mask:{attention_mask.shape},position_ids:{position_ids.shape}")
-                # exit()
                 layer_outputs = torch.utils.checkpoint.checkpoint(
                     create_custom_forward(decoder_layer),
                     hidden_states,
@@ -740,7 +710,6 @@ class LlamaModel(LlamaPreTrainedModel):
                     None,
                 )
             else:
-                # print(f"hidden_states shape: {hidden_states.shape}")
                 layer_outputs = decoder_layer(
                     hidden_states,
                     attention_mask=attention_mask,
