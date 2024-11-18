@@ -19,7 +19,7 @@ max_len=1024
 tune_mm_mlp_adapter=true
 tune_lm_header=true
 
-deepspeed llavaPT/train/train_memPT.py \
+deepspeed M2PT/train/train_memPT.py \
     --deepspeed ./scripts/zero3_offload.json \
     --model_name_or_path ./models/vicuna-7b-v1.3 \
     --version $PROMPT_VERSION \
