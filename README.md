@@ -11,8 +11,10 @@ This repository contains the official PyTorch implementation for ***M2PT: Multim
 <p align="center">
  Figure1: Overview of our M2PT approach. Here, visual prompts are embedded into each layer of the Visual Encoder, and textual prompts are embedded into each layer of the LLM. These prompts facilitate the extraction and alignment of features across modalities (e.g., vision, language). The cross-modality interaction between visual and textual features is enhanced through layered integration, ultimately improving the model's capability in zero-shot instruction learning tasks.
 </p>
+
 ## Well-trained Prompts (10-20):
 https://drive.google.com/file/d/1cG0y1Nc5eYI1Atn-f0PLsDBi77YLlVYs/view?usp=sharing
+
 ## Install
 
 1.  Clone this repository and navigate to LLaVA folder
